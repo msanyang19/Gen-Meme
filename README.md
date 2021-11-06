@@ -1,2 +1,2 @@
 # Gen-Meme
-Gen memes is an web application that user can use to generate random memes
+Gen memes is a web application that users can use to generate random memes.
