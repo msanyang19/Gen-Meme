@@ -1,58 +1,53 @@
-let topTextInput, bottomTextInput, imageInput, generateBtn, jokeBtn, canvas, ctx;
+//load meme image 
+var check= false;
+$('#input').change(function (event){
+    var target= event.target || window.event.srcElement;
+    var files= target.files;
+    if(FileReader && files && files.length){
+        var fr= new FileReader();
+        $('#hint').css("display", "none");
+        $('#btn-generate').css("display", "inline-block");
+        $('#downloads').css("display", "none");
+        fr.onload= function (){
+            $('#img').attr('src', fr.result);
+        }
+        fr.readAsDataURL(files[0]);
+        check=true;
+    }
+    else{
 
-function generateMeme (img, topText, bottomText) {
-    canvas.width = img.width;
-    canvas.height = img.height;
+    }
+});
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
+// build process
+var element= $('#main');
+var getCanvas;
+$('#btn-generate').on('click', function (){
+    if(check==true){
+        html2canvas(element, {
+            onrendered: function (canvas){
+                getCanvas= canvas;
+                $('#btn-generate').css("displa", "none");
+                $('#downloads').css("display", "inline-block")
+            }
+        })
+    }
+    else{
+        alert("please upload your meme image")
+    }
+});
 
-    ctx.fillStyle = 'white';
-    ctx.strokeStyle = 'black';
-    ctx.textAline = 'center'
+//download your meme
+$('#downloads').on('click', function (){
+    var imageData= getCanvas.toDataURL("image/png");
+    //now browser start downloading
+    var newData= imageData.replace(/^data:image\/png/,"data:application/octet-stream");
+    $('#downloads').attr("download", "your_image_name.png").attr("href", newData);
+    $('#btn-generate').css("display", "inline-block");
+    $('#downloads').css("display","none");
+})
 
-    fontSize = canvas.width /15;
-    ctx.font = fontSize + 'px impact';
-    ctx.lineWidth = fontSize /15
-
-    //Top text output
-    ctx.textBaseLine = 'top';
-    topText.split('\n').forEach(function (t, i) {
-        ctx.fillText(t, canvas.width / 2, i * fontSize, canvas.width);
-        ctx.storkeText(t, canvas.width / 2, i * fontSize, canvas.width);
-
-    });
-
-    //bottom text output
-    ctx.textBaseLine = 'bottom';
-    bottomText.split('\n').reverse().forEach(function (t, i) {
-        ctx.fillText(t, canvas.width / 2, canvas.height - i * fontSize, canvas.width);
-        ctx.storkeText(t, canvas.width / 2, canvas.height - i * fontSize, canvas.width);
-    });
-
-}
-
-function init () {
-    topTextInput = document.getElementById('top-text');
-    bottomTextInput = document.getElementById('bottom-text');
-    generateBtn = document.getElementById('generate-btn');
-    jokeBtn = document.getElementById('joke-btn');
-    imageInput = document.getElementById('image-input');
-    canvas = document.getElementById('meme-canvas');
-
-    ctx = canvas.getContext('2d');
-
-    canvas.width = canvas.height = 0;
-
-    generateBtn.addEventListener('click', function () {
-        let reader = new FileReader();
-        reader.onload = function () {
-            let img = new Image;
-            img.src = reader.result;
-            generateMeme(img, topTextInput.value, bottomTextInput.value);
-        };
-        reader.readAsDataURL(imageInput.files[0]);
-    });
-
-}
-init();
+//refresh page
+$('#refresh').on('click',function(){
+    location.reload()
+})
